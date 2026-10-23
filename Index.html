@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0B0F; --surface:#15151C; --surface-2:#1C1C25; --line:#2B2B37;
+    --text:#F3F3F6; --muted:#9C9CAB; --accent:#C8FF2E; --accent-ink:#0B0B0F;
+    --accent-soft:rgba(200,255,46,.09); --error:#FF6B6B;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:'Manrope',system-ui,sans-serif; font-size:17px; line-height:1.45;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  body::before{ /* свечение */
+    content:""; position:fixed; inset:-20vmax auto auto -20vmax; width:70vmax; height:70vmax;
+    background:radial-gradient(circle, rgba(200,255,46,.16), transparent 60%);
+    filter:blur(20px); pointer-events:none; z-index:0;
+    animation:float 18s ease-in-out infinite alternate;
+  }
+  body::after{ /* сетка */
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:64px 64px; opacity:.18;
+    mask-image:radial-gradient(ellipse at 30% 20%, #000 0%, transparent 70%);
+    -webkit-mask-image:radial-gradient(ellipse at 30% 20%, #000 0%, transparent 70%);
+  }
+  @keyframes float{to{transform:translate(18vmax,10vmax)}}
+
+  .shell{position:relative; z-index:1; display:grid; grid-template-columns:minmax(0,760px); justify-content:center; gap:48px; padding:0 20px}
+  .app{min-height:100vh; display:flex; flex-direction:column; padding:24px 0 28px; min-width:0}
+  .aside{display:none}
+  @media (min-width:1100px){
+    .shell{grid-template-columns:minmax(0,700px) 300px}
+    .aside{display:block; position:sticky; top:0; height:100vh; overflow:auto; padding:28px 0 28px 28px; border-left:1px solid var(--line)}
+  }
+  .aside h3{font-family:'Unbounded',sans-serif; font-weight:500; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:18px}
+  .aside .grp{font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#6C6C7A; margin:16px 0 6px}
+  .aside ol{list-style:none}
+  .aside li{display:flex; gap:10px; align-items:baseline; font-size:14px; color:var(--muted); padding:4px 0; transition:color .2s}
+  .aside li .n{flex:none; width:20px; font-size:11px; font-variant-numeric:tabular-nums; color:#5D5D6B}
+  .aside li.done{color:#C9C9D3}
+  .aside li.done .n{color:var(--accent)}
+  .aside li.done .n::before{content:"✓"}
+  .aside li.done .n span{display:none}
+  .aside li.cur{color:var(--text); font-weight:700}
+  .aside li.cur .n{color:var(--accent)}
+  .aside li.skip{text-decoration:line-through; opacity:.45}
+
+  .stats{display:grid; gap:14px; margin-top:28px}
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:18px 18px 16px}
+  .card h4{font-family:'Unbounded',sans-serif; font-weight:500; font-size:15px; margin-bottom:12px}
+  .row{display:grid; grid-template-columns:1fr auto; gap:4px 10px; align-items:center; margin:9px 0 0; font-size:14px}
+  .row .lbl{color:#C9C9D3}
+  .row .pct{font-variant-numeric:tabular-nums; color:var(--muted); font-weight:700}
+  .row .track{grid-column:1/-1; height:6px; background:var(--line); border-radius:6px; overflow:hidden}
+  .row .fill{height:100%; width:0; background:#5A5A6B; border-radius:6px; transition:width .9s cubic-bezier(.2,.8,.2,1)}
+  .row.me .lbl{color:var(--text); font-weight:700}
+  .row.me .fill{background:var(--accent)}
+  .row.me .pct{color:var(--accent)}
+  .tag{display:inline-block; margin-left:8px; font-size:11px; font-weight:700; color:var(--accent-ink); background:var(--accent); border-radius:6px; padding:1px 6px; vertical-align:1px}
+  .big3{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; text-align:left}
+  .big3 b{display:block; font-family:'Unbounded',sans-serif; font-size:26px; color:var(--accent); font-weight:700}
+  .big3 span{font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em}
+  .note{font-size:14px; color:var(--muted); margin-top:12px}
+  .note b{color:var(--text)}
+  .skel{height:120px; border-radius:var(--radius); background:linear-gradient(90deg,var(--surface) 0%,var(--surface-2) 50%,var(--surface) 100%); background-size:200% 100%; animation:sh 1.2s infinite}
+  @keyframes sh{to{background-position:-200% 0}}
+  .stage.top{align-items:flex-start}
+  .actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:26px}
+  .final .actions .btn{margin-top:0}
+  .top{display:flex; align-items:center; gap:16px; margin-bottom:8px}
+  .brand{font-family:'Unbounded',sans-serif; font-size:12px; letter-spacing:.14em; color:var(--muted); white-space:nowrap}
+  .brand b{color:var(--accent); font-weight:700}
+  .progress{flex:1; height:4px; background:var(--line); border-radius:4px; overflow:hidden}
+  .bar{height:100%; width:0; background:var(--accent); border-radius:4px; transition:width .5s cubic-bezier(.2,.8,.2,1)}
+  .count{font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums; min-width:44px; text-align:right}
+
+  .stage{flex:1; display:flex; align-items:center; padding:24px 0}
+  .screen{width:100%; animation:in .45s cubic-bezier(.2,.8,.2,1) both}
+  .screen.out{animation:out .2s ease both}
+  @keyframes in{from{opacity:0; transform:translateY(24px)}to{opacity:1; transform:none}}
+  @keyframes out{to{opacity:0; transform:translateY(-16px)}}
+
+  .section{display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin-bottom:14px}
+  .section::before{content:""; width:18px; height:2px; background:var(--accent)}
+  h1{font-family:'Unbounded',sans-serif; font-weight:700; font-size:clamp(30px,6vw,52px); line-height:1.08; letter-spacing:-.01em}
+  h1 em{font-style:normal; color:var(--accent)}
+  h2{font-family:'Unbounded',sans-serif; font-weight:500; font-size:clamp(22px,4.2vw,32px); line-height:1.2; letter-spacing:-.005em}
+  .lead{color:var(--muted); font-size:18px; margin-top:16px; max-width:560px}
+  .hint{color:var(--muted); font-size:15px; margin-top:10px}
+  .meta{display:flex; flex-wrap:wrap; gap:10px; margin-top:28px}
+  .chip{border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:8px 14px; font-size:14px; color:var(--muted)}
+
+  .opts{display:grid; gap:10px; margin-top:26px}
+  .opts.two{grid-template-columns:1fr 1fr}
+  .opt{
+    display:flex; align-items:center; gap:14px; width:100%; text-align:left;
+    background:var(--surface); color:var(--text); border:1px solid var(--line); border-radius:12px;
+    padding:14px 16px; font:inherit; font-size:16px; cursor:pointer;
+    transition:border-color .15s, background .15s, transform .1s;
+  }
+  .opt:hover{border-color:#4A4A5A; background:var(--surface-2)}
+  .opt:active{transform:scale(.99)}
+  .opt .key{
+    flex:none; width:26px; height:26px; border-radius:7px; border:1px solid var(--line);
+    display:grid; place-items:center; font-size:12px; font-weight:700; color:var(--muted);
+  }
+  .opt.sel{border-color:var(--accent); background:var(--accent-soft)}
+  .opt.sel .key{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+  .opt .emo{font-size:26px; line-height:1}
+  .opt .sub{display:block; font-size:13px; color:var(--muted); margin-top:2px}
+  .opt.big{flex-direction:column; align-items:flex-start; gap:8px; padding:18px}
+  .limit{font-size:13px; color:var(--muted); margin-top:12px}
+
+  textarea,input[type=text],input[type=number]{
+    width:100%; margin-top:26px; background:transparent; color:var(--text);
+    border:none; border-bottom:2px solid var(--line); padding:10px 2px; font:inherit; font-size:20px;
+    outline:none; resize:none; transition:border-color .2s;
+  }
+  textarea{min-height:110px}
+  textarea:focus,input:focus{border-color:var(--accent)}
+  ::placeholder{color:#5D5D6B}
+
+  .funnel{display:grid; grid-template-columns:1fr auto 1fr auto 1fr; align-items:end; gap:10px; margin-top:26px}
+  .funnel label{display:block; font-size:13px; color:var(--muted); font-weight:600; letter-spacing:.04em; text-transform:uppercase}
+  .funnel input{margin-top:6px; font-family:'Unbounded',sans-serif; font-size:30px; text-align:left}
+  .funnel .arr{color:var(--accent); font-size:24px; padding-bottom:12px}
+  .rate{margin-top:16px; font-size:15px; color:var(--muted); min-height:22px}
+  .rate b{color:var(--accent)}
+
+  .scale{display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-top:26px}
+  .scale .opt{justify-content:center; font-family:'Unbounded',sans-serif; font-size:24px; padding:20px 0}
+  .scale-labels{display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-top:10px}
+
+  .check{display:flex; gap:12px; align-items:flex-start; margin-top:22px; cursor:pointer; font-size:15px; color:var(--muted)}
+  .check input{appearance:none; flex:none; width:22px; height:22px; border:1px solid var(--line); border-radius:6px; margin-top:1px; background:var(--surface); cursor:pointer; display:grid; place-items:center}
+  .check input:checked{background:var(--accent); border-color:var(--accent)}
+  .check input:checked::after{content:"✓"; color:var(--accent-ink); font-size:14px; font-weight:700}
+  .field-label{font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); margin-top:26px}
+  .field-label + input{margin-top:4px}
+
+  .err{color:var(--error); font-size:14px; margin-top:14px; min-height:20px}
+
+  .nav{display:flex; align-items:center; gap:12px}
+  .btn{
+    font:inherit; font-weight:700; font-size:16px; border-radius:12px; padding:14px 22px; cursor:pointer;
+    border:1px solid var(--line); background:var(--surface); color:var(--text); transition:transform .1s, opacity .2s, background .15s;
+  }
+  .btn:active{transform:scale(.98)}
+  .btn.primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+  .btn.primary:hover{filter:brightness(1.05)}
+  .btn[disabled]{opacity:.5; cursor:default}
+  .btn.ghost{width:50px; padding:14px 0}
+  .enter{font-size:13px; color:var(--muted)}
+  .enter kbd{font-family:inherit; border:1px solid var(--line); border-radius:5px; padding:1px 6px}
+  .hidden{display:none}
+  input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{-moz-appearance:textfield}
+
+  .final h1{font-size:clamp(34px,7vw,60px)}
+  .final .btn{display:inline-block; margin-top:30px; text-decoration:none}
+  .spinner{display:inline-block; width:18px; height:18px; border:2px solid rgba(11,11,15,.3); border-top-color:var(--accent-ink); border-radius:50%; animation:spin .7s linear infinite; vertical-align:-3px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  @media (max-width:560px){
+    body{font-size:16px}
+    .app{padding:16px 16px 20px}
+    .opts.two{grid-template-columns:1fr}
+    .funnel{grid-template-columns:1fr; gap:4px}
+    .funnel .arr{display:none}
+    .scale .opt{font-size:20px; padding:16px 0}
+    .enter{display:none}
+    .btn.primary{flex:1}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="app">
+  <div class="top">
+    <div class="brand">РЫНОК ТРУДА <b>/</b> 2026</div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <div class="count" id="count"></div>
+  </div>
+  <main class="stage" id="stage"></main>
+  <div class="nav" id="nav">
+    <button class="btn ghost" id="back" aria-label="Назад">←</button>
+    <button class="btn primary" id="next">Дальше</button>
+    <span class="enter">или <kbd>Enter ↵</kbd></span>
+  </div>
+</div>
+<aside class="aside" id="aside"></aside>
+</div>
+
+<script>
+/*CONFIG*/
+const API_URL = <?= apiUrl ?>;
+const NEWS_LINK = <?= newsLink ?>;
+const MEETUP_TEXT = <?= meetupText ?>;
+/*END CONFIG*/
+
+const NOT_SEARCHING = 'Не ищу, всё устраивает';
+
+const Q = [
+  {id:'intro', type:'intro'},
+
+  {id:'q1', sec:'Знакомство', type:'long', req:true,
+   title:'Расскажи, кто ты и чем занимаешься',
+   hint:'Какие задачи решаешь на работе. Например: «SMM в агентстве, веду проекты в ювелирке» или «пишу тексты о путешествиях».',
+   ph:'Пиши своими словами…'},
+  {id:'q2', sec:'Знакомство', type:'single', req:true, title:'Твой уровень',
+   opts:['Junior','Middle','Senior','Руководитель направления или отдела','C-level: CMO, директор по маркетингу','Фриланс или своё дело']},
+  {id:'q3', sec:'Знакомство', type:'single', req:true, title:'Сколько лет ты в маркетинге?', cols:2,
+   opts:['До 1 года','1–3 года','3–5 лет','5–10 лет','Больше 10 лет']},
+  {id:'q4', sec:'Знакомство', type:'single', req:true, title:'Как ты сейчас работаешь?',
+   opts:['Одно место в найме','Несколько проектов одновременно','Фриланс','Своё дело','Сейчас без работы']},
+
+  {id:'q5', sec:'Самочувствие', type:'single', req:true, big:true, cols:2,
+   title:'Какая у тебя сейчас погода на рынке труда?',
+   opts:[{v:'Солнечно', e:'☀️', s:'всё получается'},{v:'Переменная облачность', e:'⛅', s:'бывает по-разному'},
+         {v:'Затяжной дождь', e:'🌧️', s:'долго и тяжело'},{v:'Шторм', e:'⛈️', s:'держусь как могу'}]},
+  {id:'q6', sec:'Самочувствие', type:'single', req:true, title:'Повышение за последний год',
+   opts:['Просил(а) и получил(а)','Просил(а), но отказали','Хотел(а), но не решился(ась)','Не просил(а), меня всё устраивает']},
+  {id:'q7', sec:'Самочувствие', type:'single', req:true, title:'Что ближе к твоей ситуации?',
+   opts:['Активно ищу работу','Присматриваюсь','Хочу уйти, но держусь за текущее место — на рынке страшно',NOT_SEARCHING]},
+  {id:'q8', sec:'Самочувствие', type:'multi', max:3, title:'Что толкает к смене работы?', hint:'Можно выбрать до 3 вариантов.',
+   opts:['Хочу больше зарабатывать','Хочу карьерного роста','Устал(а) совмещать проекты, хочу одно постоянное место','Хочу масштаба и выйти на международный рынок','Выгорание','Нестабильность в компании','Ничего не толкает']},
+
+  {id:'q9', sec:'Путь к офферу', type:'funnel', title:'Твоя воронка за последние 3 месяца',
+   hint:'Примерно, по памяти. Если не искал(а) — поставь 0.', show:a=>a.q7!==NOT_SEARCHING},
+  {id:'q10', sec:'Путь к офферу', type:'single', title:'Через сколько дней без ответа ты понимаешь, что отклик улетел в пустоту?', cols:2,
+   opts:['1 день','2–3 дня','Неделя','Уже ничего не жду'], show:a=>a.q7!==NOT_SEARCHING},
+  {id:'q11', sec:'Путь к офферу', type:'multi', max:2, title:'Где ты чаще всего застреваешь?', hint:'До 2 вариантов.',
+   opts:['Отклик без ответа','Автоматический отказ','После разговора с HR','После тестового задания','В финале, без оффера','Не понимаю, куда вообще откликаться'],
+   show:a=>a.q7!==NOT_SEARCHING},
+  {id:'q12', sec:'Путь к офферу', type:'long', title:'Самая абсурдная ситуация в поиске работы за последний год',
+   hint:'По желанию. Тестовое на три дня, вакансия-призрак, пять этапов и тишина — расскажи свою историю.', ph:'Однажды…'},
+
+  {id:'q13', sec:'Навыки и AI', type:'multi', max:2, title:'Какой навык ты прокачиваешь прямо сейчас?', hint:'До 2 вариантов.',
+   opts:['AI-инструменты','Аналитика и работа с данными','Видео и вертикальный контент','Performance-маркетинг','Продуктовое мышление','Управление и стратегия','Английский','Ничего не прокачиваю']},
+  {id:'q14', sec:'Навыки и AI', type:'single', req:true, title:'Где ты видишь себя через год?',
+   opts:['На той же роли','Выше в своей компании','В другой компании','На международных проектах или в другой стране','В своём деле','Вне маркетинга']},
+  {id:'q15', sec:'Навыки и AI', type:'single', req:true, title:'Что AI сделает с твоей ролью за два года?',
+   opts:['Сделает меня сильнее','Заберёт рутину — и это нормально','Заменит часть коллег','Заменит меня','Ни на что не повлияет']},
+
+  {id:'q16', sec:'Ценности и деньги', type:'multi', max:3, req:true, title:'Три главных критерия при выборе работы', hint:'Выбери до 3.',
+   opts:['Зарплата','Баланс работы и жизни','Интересные задачи','Команда','Рост','Удалёнка','Стабильность','Бренд компании']},
+  {id:'q17', sec:'Ценности и деньги', type:'single', req:true, title:'Твой доход в месяц на руки',
+   hint:'Ответы анонимны и считаются только в общей статистике.', cols:2,
+   opts:['До 300 тыс. ₸','300–500 тыс. ₸','500–800 тыс. ₸','800 тыс. – 1,2 млн ₸','1,2–2 млн ₸','Больше 2 млн ₸','Не хочу отвечать']},
+  {id:'q18', sec:'Ценности и деньги', type:'scale', req:true, title:'Насколько ясно ты понимаешь, какая работа тебе подходит?',
+   lo:'Совсем не понимаю', hi:'Понимаю точно'},
+
+  {id:'q19', sec:'Твой голос', type:'long', title:'Закончи фразу: «Дорогой работодатель, …»',
+   hint:'По желанию. Лучшие ответы анонимно зачитаем на встрече.', ph:'Дорогой работодатель, …'},
+  {id:'q20', sec:'Твой голос', type:'long', title:'Что могло бы помочь тебе сейчас?',
+   hint:'Например: «посмотреть на мой опыт со стороны», «понять, какие роли смотреть помимо привычной», «честный взгляд на резюме».',
+   ph:'Мне бы помогло…'},
+
+  {id:'meetup', sec:'Встреча', type:'single', req:true, title:'Хочешь прийти на встречу?', hint:MEETUP_TEXT,
+   opts:['Да, приду','Хочу, но не смогу — пришлите запись','Пока не знаю','Не интересно']},
+  {id:'review', sec:'Встреча', type:'review', title:'Хочешь разбор резюме или своей ситуации?',
+   hint:'Эксперты посмотрят на опыт со стороны и скажут, что сильное, а чего не хватает. Несколько резюме разберём на встрече — анонимно.'},
+  {id:'contact', sec:'Последний шаг', type:'contact', title:'Куда прислать приглашение и результаты?'}
+];
+
+const SHORT = {q1:'Кто ты и чем занимаешься',q2:'Уровень',q3:'Стаж',q4:'Как сейчас работаешь',q5:'Погода на рынке',
+  q6:'Повышение за год',q7:'Ищешь или держишься',q8:'Что толкает к смене',q9:'Твоя воронка',q10:'Сколько ждёшь ответа',
+  q11:'Где застреваешь',q12:'Абсурдная история',q13:'Какой навык качаешь',q14:'Где ты через год',q15:'AI и твоя роль',
+  q16:'Критерии выбора работы',q17:'Доход',q18:'Понимаешь, что тебе подходит',q19:'«Дорогой работодатель…»',q20:'Что поможет',
+  meetup:'Придёшь на встречу',review:'Разбор резюме',contact:'Контакт'};
+
+const A = {};             // ответы
+let path = [];            // история показанных экранов
+let idx = 0;              // индекс в Q
+let sending = false;
+
+const $ = s => document.querySelector(s);
+const stage = $('#stage'), nextBtn = $('#next'), backBtn = $('#back');
+const visible = () => Q.filter(q => q.type!=='intro' && (!q.show || q.show(A)));
+const LETTERS = 'ABCDEFGHIJ';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function progress(){
+  const v = visible(); const q = Q[idx];
+  const pos = q.type==='intro' ? 0 : v.indexOf(q)+1;
+  $('#bar').style.width = (pos / v.length * 100) + '%';
+  $('#count').textContent = q.type==='intro' ? '' : pos + ' / ' + v.length;
+  aside();
+}
+
+function aside(finished){
+  let h = '<h3>Что спросим</h3>', sec = '', n = 0;
+  const cur = Q[idx];
+  Q.forEach(q => {
+    if (q.type==='intro') return;
+    if (q.sec!==sec){ if (sec) h+='</ol>'; sec=q.sec; h+=`<div class="grp">${esc(sec)}</div><ol>`; }
+    const skip = q.show && !q.show(A);
+    if (!skip) n++;
+    const cls = finished ? 'done' : skip ? 'skip' : q===cur ? 'cur' : path.includes(Q.indexOf(q)) ? 'done' : '';
+    h += `<li class="${cls}"><span class="n"><span>${skip?'–':n}</span></span>${esc(SHORT[q.id]||q.title)}</li>`;
+  });
+  $('#aside').innerHTML = h + '</ol>';
+}
+
+function render(){
+  const q = Q[idx];
+  let h = '';
+  if (q.type==='intro'){
+    h = `<div class="section">Открытый опрос</div>
+      <h1>Рынок труда<br>в маркетинге:<br><em>без фильтров</em></h1>
+      <p class="lead">Собираем реальный опыт маркетологов: как ищут работу, сколько откликов до оффера, что происходит с деньгами и AI. Результаты покажем на открытой встрече и пришлём каждому.</p>
+      <div class="meta"><span class="chip">6–7 минут</span><span class="chip">анонимно</span><span class="chip">результаты — каждому</span></div>`;
+  } else {
+    h = `<div class="section">${esc(q.sec)}</div><h2>${esc(q.title)}</h2>` + (q.hint?`<p class="hint">${esc(q.hint)}</p>`:'');
+    if (q.type==='long'){
+      h += `<textarea id="f" rows="3" placeholder="${esc(q.ph||'')}" maxlength="2000">${esc(A[q.id]||'')}</textarea>`;
+    } else if (q.type==='single' || q.type==='multi'){
+      const cur = A[q.id] || (q.type==='multi'?[]:'');
+      h += `<div class="opts${q.cols===2?' two':''}">` + q.opts.map((o,i)=>{
+        const v = typeof o==='string'?o:o.v;
+        const sel = q.type==='multi'? cur.includes(v) : cur===v;
+        if (q.big) return `<button class="opt big${sel?' sel':''}" data-v="${esc(v)}"><span class="emo">${o.e}</span><span>${esc(v)}<span class="sub">${esc(o.s)}</span></span></button>`;
+        return `<button class="opt${sel?' sel':''}" data-v="${esc(v)}"><span class="key">${LETTERS[i]}</span><span>${esc(v)}</span></button>`;
+      }).join('') + `</div>`;
+    } else if (q.type==='scale'){
+      h += `<div class="scale">` + [1,2,3,4,5].map(n=>`<button class="opt${A[q.id]==n?' sel':''}" data-v="${n}">${n}</button>`).join('') +
+        `</div><div class="scale-labels"><span>${esc(q.lo)}</span><span>${esc(q.hi)}</span></div>`;
+    } else if (q.type==='funnel'){
+      h += `<div class="funnel">
+        <div><label for="fa">Откликов</label><input type="number" id="fa" min="0" max="5000" inputmode="numeric" placeholder="0" value="${esc(A.q9a??'')}"></div><div class="arr">→</div>
+        <div><label for="fb">Собеседований</label><input type="number" id="fb" min="0" max="500" inputmode="numeric" placeholder="0" value="${esc(A.q9b??'')}"></div><div class="arr">→</div>
+        <div><label for="fc">Офферов</label><input type="number" id="fc" min="0" max="100" inputmode="numeric" placeholder="0" value="${esc(A.q9c??'')}"></div>
+      </div><div class="rate" id="rate"></div>`;
+    } else if (q.type==='review'){
+      h += `<div class="opts two">` + ['Да, хочу','Нет, спасибо'].map((v,i)=>`<button class="opt${A.review===v?' sel':''}" data-v="${v}"><span class="key">${LETTERS[i]}</span><span>${v}</span></button>`).join('') + `</div>
+        <div id="resumeBox" style="display:${A.review==='Да, хочу'?'block':'none'}">
+          <div class="field-label">Ссылка на резюме</div>
+          <input type="text" id="resume" placeholder="Google Диск, hh.kz или LinkedIn" value="${esc(A.resume||'')}" maxlength="500">
+          <p class="hint">Проверь, что ссылка открывается без входа в аккаунт.</p>
+        </div>`;
+    } else if (q.type==='contact'){
+      h += `<div class="field-label">Telegram или email</div>
+        <input type="text" id="contact" placeholder="@username или name@mail.com" value="${esc(A.contact||'')}" maxlength="200">
+        <label class="check"><input type="checkbox" id="consent" ${A.consent?'checked':''}>
+          <span>Согласен(на) на обработку моих ответов и контактов для подготовки встречи, рассылки приглашения, результатов опроса и обратной связи по резюме.</span></label>`;
+    }
+    h += `<div class="err" id="err"></div>`;
+  }
+  stage.innerHTML = `<div class="screen">${h}</div>`;
+  bind(q);
+  backBtn.classList.toggle('hidden', path.length===0);
+  nextBtn.textContent = q.type==='intro' ? 'Начать' : (q.type==='contact' ? 'Отправить' : 'Дальше');
+  progress();
+  const f = stage.querySelector('textarea, input[type=text], input[type=number]');
+  if (f && window.innerWidth > 560) setTimeout(()=>f.focus(), 350);
+}
+
+function bind(q){
+  stage.querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => pick(q, b.dataset.v)));
+  if (q.type==='long') $('#f').addEventListener('input', e => A[q.id] = e.target.value);
+  if (q.type==='funnel'){
+    const upd = () => {
+      ['a','b','c'].forEach(k => { const v = $('#f'+k).value; A['q9'+k] = v===''? '' : Math.max(0, Math.round(+v)); });
+      const a=+A.q9a, b=+A.q9b, c=+A.q9c;
+      $('#rate').innerHTML = a>0 && A.q9b!=='' ? `Конверсия в собеседование: <b>${Math.round(b/a*100)}%</b>` + (b>0 && A.q9c!==''?` · в оффер: <b>${Math.round(c/b*100)}%</b>`:'') : '';
+    };
+    ['a','b','c'].forEach(k => $('#f'+k).addEventListener('input', upd)); upd();
+  }
+  if (q.type==='review') { const r=$('#resume'); r.addEventListener('input', e => A.resume = e.target.value); }
+  if (q.type==='contact'){
+    $('#contact').addEventListener('input', e => A.contact = e.target.value);
+    $('#consent').addEventListener('change', e => A.consent = e.target.checked);
+  }
+}
+
+function pick(q, v){
+  err('');
+  if (q.type==='multi'){
+    let cur = A[q.id] || [];
+    const exclusive = ['Ничего не толкает','Ничего не прокачиваю'];
+    if (cur.includes(v)) cur = cur.filter(x=>x!==v);
+    else if (exclusive.includes(v)) cur = [v];
+    else {
+      cur = cur.filter(x=>!exclusive.includes(x));
+      if (cur.length >= q.max){ err('Можно выбрать не больше ' + q.max); return; }
+      cur = cur.concat(v);
+    }
+    A[q.id] = cur;
+    stage.querySelectorAll('.opt').forEach(b => b.classList.toggle('sel', cur.includes(b.dataset.v)));
+    return;
+  }
+  if (q.type==='review'){
+    A.review = v;
+    stage.querySelectorAll('.opt').forEach(b => b.classList.toggle('sel', b.dataset.v===v));
+    $('#resumeBox').style.display = v==='Да, хочу' ? 'block' : 'none';
+    if (v==='Да, хочу') setTimeout(()=>$('#resume').focus(), 50); else { A.resume=''; setTimeout(next, 280); }
+    return;
+  }
+  A[q.id] = q.type==='scale' ? +v : v;
+  stage.querySelectorAll('.opt').forEach(b => b.classList.toggle('sel', b.dataset.v==String(v)));
+  setTimeout(next, 280); // автопереход
+}
+
+function err(t){ const e=$('#err'); if (e) e.textContent = t; }
+
+function valid(q){
+  if (q.type==='intro') return true;
+  if (q.type==='contact'){
+    const c = (A.contact||'').trim();
+    if (c && !/^@?[A-Za-z0-9_]{4,32}$/.test(c) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c)) return err('Проверь контакт: @username в Telegram или email'), false;
+    if (!A.consent) return err('Нужно согласие, чтобы мы могли сохранить ответы'), false;
+    return true;
+  }
+  if (!q.req) return true;
+  const v = A[q.id];
+  if (v===undefined || v==='' || (Array.isArray(v) && !v.length) || (typeof v==='string' && !v.trim()))
+    return err(q.type==='long' ? 'Напиши хотя бы пару слов' : 'Выбери вариант, чтобы продолжить'), false;
+  return true;
+}
+
+function go(to){
+  const s = stage.querySelector('.screen');
+  if (s) s.classList.add('out');
+  setTimeout(()=>{ idx = to; render(); window.scrollTo({top:0}); }, 180);
+}
+
+function next(){
+  if (sending) return;
+  const q = Q[idx];
+  if (!valid(q)) return;
+  if (q.type==='contact') return send();
+  let n = idx + 1;
+  while (n < Q.length && Q[n].show && !Q[n].show(A)) n++;
+  path.push(idx);
+  go(n);
+}
+function back(){ if (path.length) go(path.pop()); }
+
+function send(){
+  sending = true;
+  nextBtn.disabled = true; nextBtn.innerHTML = '<span class="spinner"></span>';
+  const payload = {};
+  Object.keys(A).forEach(k => payload[k] = A[k]);
+  if (A.q7===NOT_SEARCHING){ ['q9a','q9b','q9c','q10','q11'].forEach(k=>delete payload[k]); }
+  payload.consent = A.consent ? 'Да' : '';
+  fetch(API_URL, {method:'POST', body: JSON.stringify(payload)})
+    .then(r => r.json())
+    .then(j => { if (!j.ok) throw new Error(j.error); done(); })
+    .catch(() => {
+      sending = false; nextBtn.disabled = false; nextBtn.textContent = 'Отправить';
+      err('Не получилось отправить. Проверь интернет и нажми ещё раз.');
+    });
+}
+
+function done(){
+  $('#nav').style.display = 'none';
+  $('#bar').style.width = '100%'; $('#count').textContent = '';
+  aside(true);
+  showResults(true);
+}
+
+function showResults(afterSubmit){
+  stage.classList.add('top');
+  stage.innerHTML = `<div class="screen final">
+    <div class="section">${afterSubmit?'Готово':'Результаты опроса'}</div>
+    <h1>${afterSubmit?'Спасибо!<br><em>Вот что говорит рынок.</em>':'Рынок труда<br><em>в цифрах</em>'}</h1>
+    <p class="lead" id="sub">Загружаем ответы других участников…</p>
+    <div class="stats" id="stats"><div class="skel"></div><div class="skel"></div></div>
+    <div class="actions">
+      <a class="btn primary" href="${esc(NEWS_LINK)}" target="_blank" rel="noopener">Новости встречи в канале →</a>
+    </div>
+  </div>`;
+  fetch(API_URL + '?stats=1').then(r => r.json()).then(s => renderStats(s, afterSubmit))
+    .catch(() => { $('#sub').textContent = 'Статистику загрузить не получилось — загляни по этой же ссылке чуть позже.'; $('#stats').innerHTML=''; });
+}
+
+function renderStats(s, mine){
+  const box = $('#stats');
+  if (!s.dist){
+    if (mine) document.querySelector('.final h1').innerHTML = 'Спасибо!<br><em>Ты в деле.</em>';
+    $('#sub').innerHTML = mine
+      ? `Ответы сохранены. Ты — <b>${s.n}-й</b> участник. Общую картину покажем, когда наберётся ${s.min} ответов: загляни по этой же ссылке позже, а итоги разберём на встрече.`
+      : `Пока ответили ${s.n} человек. Статистика откроется с ${s.min} ответов.`;
+    box.innerHTML = ''; return;
+  }
+  $('#sub').innerHTML = `Ответили уже <b>${s.n}</b> маркетологов.` + (mine ? ' Твои ответы подсвечены.' : '');
+  const byId = id => Q.find(q => q.id===id);
+  const card = (id, title, sort) => {
+    const d = s.dist[id]; if (!d || !d.total) return '';
+    const q = byId(id);
+    let opts = q.opts.map(o => typeof o==='string'?o:o.v);
+    let rows = opts.map(v => ({v, c: d.counts[v]||0}));
+    if (sort) rows = rows.sort((a,b)=>b.c-a.c).slice(0,5);
+    const my = mine ? [].concat(A[id]||[]) : [];
+    return `<div class="card"><h4>${title}</h4>` + rows.map(r => {
+      const p = Math.round(r.c / d.total * 100), me = my.includes(r.v);
+      return `<div class="row${me?' me':''}"><span class="lbl">${esc(r.v)}${me?'<span class="tag">ты</span>':''}</span><span class="pct">${p}%</span><div class="track"><div class="fill" data-w="${p}"></div></div></div>`;
+    }).join('') + `</div>`;
+  };
+  let h = card('q5','Погода на рынке труда') + card('q7','Ищут работу или держатся за текущую');
+  const f = s.funnel;
+  if (f && f.n >= 3 && f.a){
+    const fmt = x => x===null ? '—' : (Math.round(x*10)/10).toLocaleString('ru-RU');
+    let mineTxt = '';
+    if (mine && +A.q9a > 0 && A.q9b!==undefined && A.q9b!==''){
+      const my = Math.round(+A.q9b / +A.q9a * 100), med = Math.round((f.convB||0)*100);
+      mineTxt = `<p class="note">Твоя конверсия в собеседование — <b>${my}%</b>, медиана у других — <b>${med}%</b>.</p>`;
+    }
+    h += `<div class="card"><h4>Воронка за 3 месяца: медиана</h4><div class="big3">
+      <div><b>${fmt(f.a)}</b><span>откликов</span></div><div><b>${fmt(f.b)}</b><span>собеседований</span></div><div><b>${fmt(f.c)}</b><span>офферов</span></div>
+      </div>${mineTxt}</div>`;
+  }
+  h += card('q6','Повышение за последний год') + card('q15','Что AI сделает с ролью') + card('q16','Главные критерии выбора работы', true) + card('q14','Где видят себя через год');
+  box.innerHTML = h;
+  requestAnimationFrame(() => setTimeout(() => box.querySelectorAll('.fill').forEach(el => el.style.width = el.dataset.w + '%'), 60));
+}
+
+nextBtn.addEventListener('click', next);
+backBtn.addEventListener('click', back);
+document.addEventListener('keydown', e => {
+  const q = Q[idx];
+  if (e.key==='Enter' && !e.shiftKey){
+    if (e.target.tagName==='TEXTAREA' && !e.metaKey && !e.ctrlKey) return; // перенос строки в тексте
+    e.preventDefault(); next(); return;
+  }
+  if (e.target.tagName==='INPUT' || e.target.tagName==='TEXTAREA') return;
+  const i = LETTERS.indexOf(e.key.toUpperCase());
+  const btns = stage.querySelectorAll('.opt');
+  if (i>=0 && btns[i]) btns[i].click();
+  if (q.type==='scale' && /^[1-5]$/.test(e.key)) btns[+e.key-1].click();
+});
+
+if (/[?&]results\b/.test(location.search)){
+  $('#nav').style.display='none'; aside(true); showResults(false);
+} else {
+  render();
+}
+</script>
+</body>
+</html>
