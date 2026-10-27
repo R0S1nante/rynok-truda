@@ -597,7 +597,7 @@ function downloadIcs(){
   document.body.appendChild(a); a.click(); a.remove();
 }
 function shareSurvey(){
-  const data = {title:'Рынок труда в маркетинге: без фильтров', text:'Опрос для маркетинга, рекламы, PR и медиа в Казахстане — 10 минут, анонимно. Итоги обсудим 3 ноября.', url: SHARE_URL};
+  const data = {title:'Рынок труда в маркетинге: без фильтров', text:'Опрос для маркетинга, рекламы, PR и медиа в Казахстане — 10 минут, анонимно. Итоги обсудим 3 ноября.', url: SHARE_URL + '?src=share'};
   if (navigator.share) { navigator.share(data).catch(()=>{}); return; }
   const t = data.text + ' ' + data.url;
   (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(()=>toast('Ссылка скопирована — отправьте коллеге'))
@@ -653,6 +653,7 @@ document.addEventListener('keydown', e => {
 
 const saved = load();
 let resumeFrom = 0;
+const SRC = (location.search.match(/[?&]src=([\w-]{1,40})/)||[])[1] || '';
 if (/[?&]results\b/.test(location.search)){
   $('#nav').style.display='none'; aside(true); showResults(false);
 } else if (saved && saved.done){
@@ -663,6 +664,7 @@ if (/[?&]results\b/.test(location.search)){
     Object.assign(A, saved.A);
     const v = visible(); resumeFrom = Math.max(1, v.indexOf(Q[saved.idx]) + 1);
   }
+  if (SRC) A.src = SRC;
   render();
 }
 </script>
