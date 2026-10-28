@@ -230,8 +230,9 @@
 /*CONFIG*/
 const API_URL = "https://script.google.com/macros/s/AKfycbwNXbdlaJQlP9YBzGUcapALc48xB7wvBYFWfcRd-qVpxFD8Xmku2dvY-EOlGKwj_uW0/exec";
 const NEWS_LINK = "https://t.me/tenge99";
-const MEETUP_TEXT = "3 ноября, 19:00, Алматы, ТРЦ «Форум». Сбор гостей с 19:00, старт в 19:30, около 2,5 часа. Три панельные сессии — рынок и найм, AI и профессия, путь к офферу — с HR, руководителями и экспертами, вопросы из зала, цифры этого опроса и разборы резюме.";
+const MEETUP_TEXT = "3 ноября, 19:00, Алматы, ТРЦ «Форум». Сбор с 19:00, старт строго в 19:15, около 2,5 часа. Вход по регистрации. Три панельные сессии — рынок и найм, AI и профессия, путь к офферу — с HR, руководителями и экспертами, вопросы из зала, цифры этого опроса и разборы резюме.";
 const SHARE_URL = 'https://r0s1nante.github.io/rynok-truda/';
+const REG_URL = 'https://r0s1nante.github.io/rynok-truda/register.html?src=survey';
 /*END CONFIG*/
 
 const NOT_SEARCHING = 'Мне хорошо там, где я есть';
@@ -566,8 +567,9 @@ function showResults(afterSubmit){
     <p class="lead" id="sub">Загружаем ответы других участников…</p>
     <div class="card" style="margin-top:22px">
       <h4>Встреча 3 ноября, 19:00 · ТРЦ «Форум»</h4>
-      <p class="note" style="margin-top:0">Три сессии: рынок и найм, AI и профессия, путь к офферу. Плюс разборы резюме.</p>
+      <p class="note" style="margin-top:0">Три сессии: рынок и найм, AI и профессия, путь к офферу. Плюс разборы резюме. Сбор с 19:00, старт строго в 19:15. <b>Вход по регистрации, мест около 50.</b></p>
       <div class="actions" style="margin-top:14px">
+        <a class="btn primary" href="${REG_URL}" target="_blank" rel="noopener">Зарегистрироваться →</a>
         <a class="btn ghostline" href="${GCAL}" target="_blank" rel="noopener">+ Google Календарь</a>
         <a class="btn ghostline" id="ics">+ Apple / Outlook</a>
       </div>
@@ -586,7 +588,7 @@ function showResults(afterSubmit){
 }
 
 const EV = {title:'Рынок труда в маркетинге: без фильтров', start:'20261103T140000Z', end:'20261103T163000Z',
-  loc:'ТРЦ «Форум», Алматы', details:'Офлайн-встреча сообщества 99 тенге: рынок и найм, AI и профессия, путь к офферу + разборы резюме. Сбор с 19:00, старт в 19:30.'};
+  loc:'ТРЦ «Форум», Алматы', details:'Офлайн-встреча сообщества 99 тенге: рынок и найм, AI и профессия, путь к офферу + разборы резюме. Сбор с 19:00, старт строго в 19:15. Вход по регистрации.'};
 const GCAL = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(EV.title)
   + '&dates=' + EV.start + '/' + EV.end + '&location=' + encodeURIComponent(EV.loc) + '&details=' + encodeURIComponent(EV.details + ' ' + NEWS_LINK);
 function downloadIcs(){
