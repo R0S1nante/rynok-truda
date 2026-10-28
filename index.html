@@ -96,6 +96,11 @@
   .org img{width:30px; height:30px; border-radius:50%}
   .org b{color:#fff}
   .cheer{display:inline-flex; align-items:center; gap:10px; margin-bottom:18px; padding:8px 14px; border-radius:10px; background:var(--brand-soft); border-left:3px solid var(--brand); color:#E2E2F7; font-size:14px; font-weight:600; animation:in .5s .1s both}
+  .regcard{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:24px; max-width:640px}
+  .regcard b{display:block; font-size:15px; color:#fff}
+  .regcard span{display:block; font-size:14px; color:var(--muted); margin-top:4px}
+  .regcard .btn{flex:none; padding:12px 18px}
+  @media (max-width:560px){ .regcard{flex-direction:column; align-items:flex-start} .regcard .btn{width:100%; text-align:center} }
   .resume{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:22px; font-size:15px; color:var(--muted)}
   .resume a{color:var(--brand); cursor:pointer; text-decoration:underline}
   .btn.ghostline{background:transparent; border-color:var(--brand); color:#E2E2F7; text-decoration:none}
@@ -398,6 +403,8 @@ function render(){
       <h1>Рынок труда<br>в маркетинге:<br><em>без фильтров</em></h1>
       <p class="lead">Маркетинг, реклама, PR и медиа в Казахстане, 2026. Собираем честный срез: как и где сейчас ищут работу, что мешает и помогает, как AI меняет профессию. Ответы разберём на трёх сессиях встречи 3 ноября: рынок и найм, AI и профессия, путь к офферу.</p>
       <div class="meta"><span class="chip">около 10 минут</span><span class="chip">анонимно</span><span class="chip">итоги — участникам</span><span class="chip" id="cnt" style="display:none"></span></div>
+      <div class="card regcard"><div><b>Встреча 3 ноября, 19:00 · ТРЦ «Форум»</b><span>Три панели с HR и руководителями + разборы резюме. Вход по регистрации, мест около 50.</span></div>
+        <a class="btn ghostline" href="${REG_URL.replace('src=survey','src=' + (SRC||'survey-intro'))}" target="_blank" rel="noopener">Регистрация →</a></div>
       <div class="org"><img src="${LOGO}" alt=""><span>Опрос сообщества <b>99 тенге</b></span></div>
       ${resumeFrom ? `<div class="resume">Вы остановились на вопросе ${resumeFrom}. <a id="restart">Начать заново</a></div>` : ''}`;
   } else {
