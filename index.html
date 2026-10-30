@@ -665,9 +665,18 @@ let resumeFrom = 0;
 const SRC = (location.search.match(/[?&]src=([\w-]{1,40})/)||[])[1] || '';
 if (/[?&]results\b/.test(location.search)){
   $('#nav').style.display='none'; aside(true); showResults(false);
+} else if (/[?&]reset\b/.test(location.search)){
+  try { localStorage.removeItem(KEY); } catch(e){}
+  location.replace(location.pathname + location.search.replace(/[?&]reset\b(=[^&]*)?/,'').replace(/^&/,'?'));
 } else if (saved && saved.done){
   Object.assign(A, saved.A||{});
   $('#nav').style.display='none'; aside(true); showResults(true);
+  // повторный визит: честно говорим, что опрос уже пройден с этого устройства
+  const sec = document.querySelector('.final .section'); if (sec) sec.textContent = 'Вы уже прошли опрос';
+  const again = document.createElement('p'); again.className = 'hint';
+  again.innerHTML = 'Опрос уже пройден с этого устройства. Не вы? <a id="again" style="color:var(--brand);cursor:pointer;text-decoration:underline">Пройти опрос</a>';
+  const lead = document.querySelector('#sub'); if (lead) lead.after(again);
+  $('#again').onclick = () => { try { localStorage.removeItem(KEY); } catch(e){}; location.reload(); };
 } else {
   if (saved && saved.idx > 0 && saved.A){
     Object.assign(A, saved.A);
