@@ -235,7 +235,7 @@
 /*CONFIG*/
 const API_URL = "https://script.google.com/macros/s/AKfycbwNXbdlaJQlP9YBzGUcapALc48xB7wvBYFWfcRd-qVpxFD8Xmku2dvY-EOlGKwj_uW0/exec";
 const NEWS_LINK = "https://t.me/tenge99";
-const MEETUP_TEXT = "3 ноября, 19:00, Алматы, ТРЦ «Форум». Сбор с 19:00, старт строго в 19:15, около 2,5 часа. Вход по регистрации. Три панельные сессии — рынок и найм, AI и профессия, путь к офферу — с HR, руководителями и экспертами, вопросы из зала, цифры этого опроса и разборы резюме.";
+const MEETUP_TEXT = "3 ноября, 19:00, Алматы, ТРЦ «Форум». Сбор с 19:00, старт строго в 19:15. Вход по регистрации. Дискуссионная панель: HRD Kolesa Group, Splat, Teez, директора агентств DASM, Mosaic Agency, Circle Creative Buro, карьерные консультанты. Плюс разборы резюме.";
 const SHARE_URL = 'https://r0s1nante.github.io/rynok-truda/';
 const REG_URL = 'https://r0s1nante.github.io/rynok-truda/register.html?src=survey';
 /*END CONFIG*/
@@ -403,7 +403,7 @@ function render(){
       <h1>Рынок труда<br>в маркетинге:<br><em>без фильтров</em></h1>
       <p class="lead">Маркетинг, реклама, PR и медиа в Казахстане, 2026. Собираем честный срез: как и где сейчас ищут работу, что мешает и помогает, как AI меняет профессию. Ответы разберём на трёх сессиях встречи 3 ноября: рынок и найм, AI и профессия, путь к офферу.</p>
       <div class="meta"><span class="chip">около 10 минут</span><span class="chip">анонимно</span><span class="chip">итоги — участникам</span><span class="chip" id="cnt" style="display:none"></span></div>
-      <div class="card regcard"><div><b>Встреча 3 ноября, 19:00 · ТРЦ «Форум»</b><span>Три панели с HR и руководителями + разборы резюме. Вход по регистрации, мест около 50.</span></div>
+      <div class="card regcard"><div><b>Встреча 3 ноября, 19:00 · ТРЦ «Форум»</b><span>Эксперты: HRD Kolesa Group, Splat, Teez, директора агентств DASM, Mosaic Agency, Circle Creative Buro, карьерные консультанты. Плюс разборы резюме. Вход по регистрации.</span></div>
         <a class="btn ghostline" href="${REG_URL.replace('src=survey','src=' + (SRC||'survey-intro'))}" target="_blank" rel="noopener">Регистрация →</a></div>
       <div class="org"><img src="${LOGO}" alt=""><span>Опрос сообщества <b>99 тенге</b></span></div>
       ${resumeFrom ? `<div class="resume">Вы остановились на вопросе ${resumeFrom}. <a id="restart">Начать заново</a></div>` : ''}`;
@@ -574,7 +574,7 @@ function showResults(afterSubmit){
     <p class="lead" id="sub">Загружаем ответы других участников…</p>
     <div class="card" style="margin-top:22px">
       <h4>Встреча 3 ноября, 19:00 · ТРЦ «Форум»</h4>
-      <p class="note" style="margin-top:0">Три сессии: рынок и найм, AI и профессия, путь к офферу. Плюс разборы резюме. Сбор с 19:00, старт строго в 19:15. <b>Вход по регистрации, мест около 50.</b></p>
+      <p class="note" style="margin-top:0">Эксперты: HRD Kolesa Group, Splat, Teez, директора агентств DASM, Mosaic Agency, Circle Creative Buro, карьерные консультанты. Плюс разборы резюме. Сбор с 19:00, старт строго в 19:15. <b>Вход по регистрации, мест около 50.</b></p>
       <div class="actions" style="margin-top:14px">
         <a class="btn primary" href="${REG_URL}" target="_blank" rel="noopener">Зарегистрироваться →</a>
         <a class="btn ghostline" href="${GCAL}" target="_blank" rel="noopener">+ Google Календарь</a>

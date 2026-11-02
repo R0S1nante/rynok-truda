@@ -6,7 +6,7 @@
 <title>Регистрация · Рынок труда в маркетинге — 3 ноября</title>
 <meta name="description" content="Офлайн-встреча сообщества 99 тенге: 3 ноября, 19:00, ТРЦ «Форум», Алматы. Вход по регистрации.">
 <meta property="og:title" content="Рынок труда в маркетинге: без фильтров — регистрация">
-<meta property="og:description" content="3 ноября, 19:00, ТРЦ «Форум», Алматы. Три панельные сессии и разборы резюме. Вход по регистрации, мест около 50.">
+<meta property="og:description" content="3 ноября, 19:00, ТРЦ «Форум». Эксперты: HRD Kolesa Group, Splat, Teez, директора агентств DASM, Mosaic Agency, Circle Creative Buro. Вход по регистрации.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://r0s1nante.github.io/rynok-truda/register.html">
 <meta property="og:image" content="https://r0s1nante.github.io/rynok-truda/og-reg.png">
@@ -97,6 +97,11 @@
   .org img{width:30px; height:30px; border-radius:50%}
   .org b{color:#fff}
   .cheer{display:inline-flex; align-items:center; gap:10px; margin-bottom:18px; padding:8px 14px; border-radius:10px; background:var(--brand-soft); border-left:3px solid var(--brand); color:#E2E2F7; font-size:14px; font-weight:600; animation:in .5s .1s both}
+  .regcard{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:24px; max-width:640px}
+  .regcard b{display:block; font-size:15px; color:#fff}
+  .regcard span{display:block; font-size:14px; color:var(--muted); margin-top:4px}
+  .regcard .btn{flex:none; padding:12px 18px}
+  @media (max-width:560px){ .regcard{flex-direction:column; align-items:flex-start} .regcard .btn{width:100%; text-align:center} }
   .resume{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:22px; font-size:15px; color:var(--muted)}
   .resume a{color:var(--brand); cursor:pointer; text-decoration:underline}
   .btn.ghostline{background:transparent; border-color:var(--brand); color:#E2E2F7; text-decoration:none}
@@ -207,6 +212,10 @@
   }
   @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
 
+  .experts{margin-top:26px; padding:20px 22px; border:1px solid rgba(140,141,224,.35); background:var(--brand-soft); border-radius:var(--radius); max-width:640px}
+  .xrow{display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:12px}
+  .xt{font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--brand); margin-right:4px}
+  .xc{font-size:15px; font-weight:700; color:#fff; background:rgba(255,255,255,.06); border:1px solid var(--line); border-radius:999px; padding:6px 12px}
   .form{display:grid; gap:4px; margin-top:28px; max-width:620px}
   .form .field-label{margin-top:18px}
   .form input[type=text]{margin-top:4px; font-size:18px}
@@ -235,7 +244,13 @@
       <div class="section">Регистрация на встречу</div>
       <h1>Рынок труда<br>в маркетинге:<br><em>без фильтров</em></h1>
       <p class="lead"><b style="color:#fff">3 ноября, вторник · сбор с 19:00, старт строго в 19:15 · Алматы, ТРЦ «Форум»</b><br>
-        Три панельные сессии с HR, руководителями и экспертами — рынок и найм, AI и профессия, путь к офферу — и разборы резюме вживую.</p>
+        Дискуссионная панель — рынок и найм, AI и профессия, путь к офферу — и разборы резюме вживую.</p>
+      <div class="experts">
+      <div class="field-label" style="margin-top:0">Эксперты дискуссионной панели</div>
+      <div class="xrow"><span class="xt">HRD</span><span class="xc">Kolesa Group</span><span class="xc">Splat</span><span class="xc">Teez</span></div>
+      <div class="xrow"><span class="xt">Директора агентств</span><span class="xc">DASM</span><span class="xc">Mosaic Agency</span><span class="xc">Circle Creative Buro</span></div>
+      <div class="xrow"><span class="xt">И</span><span class="xc">карьерные консультанты</span></div>
+    </div>
       <div class="seats" id="seats" style="display:none"><span class="dot"></span><span id="seatsText"></span></div>
 
       <div class="form">
